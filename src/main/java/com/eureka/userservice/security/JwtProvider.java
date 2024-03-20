@@ -1,15 +1,16 @@
 package com.eureka.userservice.security;
 
 import com.eureka.userservice.domain.Authority;
+import com.eureka.userservice.domain.Member;
+import com.eureka.userservice.repository.MemberRepository;
 import com.eureka.userservice.service.Member.JpaUserDetailsService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.fasterxml.classmate.MemberResolver;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,8 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Component
@@ -28,16 +28,22 @@ public class JwtProvider {
     @Value("${jwt.secret.key}")
     private String salt;
 
+    @Value("${jwt.secret.token-validity-in-seconds}")
+    private String seconds;
+
     private Key secretKey;
 
     // 만료시간 : 1Hour
     private final long exp = 1000L * 60 * 60;
 
     private final JpaUserDetailsService userDetailsService;
+    private final MemberRepository memberRepository;
+    private Log logger;
 
     @PostConstruct
     protected void init() {
-        secretKey = Keys.hmacShaKeyFor(salt.getBytes(StandardCharsets.UTF_8));
+        long exp = Long.parseLong(seconds) * 1000; // seconds를 밀리초로 변환
+        secretKey = Keys.hmacShaKeyFor((seconds+salt).getBytes(StandardCharsets.UTF_8));
     }
 
     // 토큰 생성
@@ -51,6 +57,16 @@ public class JwtProvider {
                 .setExpiration(new Date(now.getTime() + exp))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    private String shuffleString(String inputString) {
+        List<String> characters = Arrays.asList(inputString.split(""));
+        Collections.shuffle(characters, new Random());
+        StringBuilder shuffledString = new StringBuilder();
+        for (String character : characters) {
+            shuffledString.append(character);
+        }
+        return shuffledString.toString();
     }
 
     // 권한정보 획득
@@ -86,4 +102,24 @@ public class JwtProvider {
             return false;
         }
     }
+
+//    public boolean validateToken(String token) {
+//        try {
+//            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+//            return true;
+//        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+//
+//            logger.info("잘못된 JWT 서명입니다.");
+//        } catch (ExpiredJwtException e) {
+//
+//            logger.info("만료된 JWT 토큰입니다.");
+//        } catch (UnsupportedJwtException e) {
+//
+//            logger.info("지원되지 않는 JWT 토큰입니다.");
+//        } catch (IllegalArgumentException e) {
+//
+//            logger.info("JWT 토큰이 잘못되었습니다.");
+//        }
+//        return false;
+//    }
 }

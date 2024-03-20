@@ -7,6 +7,7 @@ import com.eureka.userservice.dto.member.response.SignResponse;
 import com.eureka.userservice.repository.MemberRepository;
 import com.eureka.userservice.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Role;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +52,7 @@ public class MemberService {
                     .name(request.getName())
                     .nickname(request.getNickname())
                     .email(request.getEmail())
+//                    .roles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()))
                     .build();
 
             member.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));

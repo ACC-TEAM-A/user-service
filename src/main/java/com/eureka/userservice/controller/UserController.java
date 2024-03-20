@@ -4,18 +4,15 @@ import com.eureka.userservice.dto.member.request.SignRequest;
 import com.eureka.userservice.dto.member.response.SignResponse;
 import com.eureka.userservice.repository.MemberRepository;
 import com.eureka.userservice.service.Member.MemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/member")
 public class UserController {
-    @GetMapping("")
-    public String hello() {
-        return "hello";
-    }
-
 
     private final MemberRepository memberRepository;
     private final MemberService memberService;
@@ -34,6 +31,7 @@ public class UserController {
 
     @PostMapping(value = "/register")
     public ResponseEntity<Boolean> signup(@RequestBody SignRequest request) throws Exception {
+        log.info("request = {}", request);
         return new ResponseEntity<>(memberService.register(request), HttpStatus.OK);
     }
 

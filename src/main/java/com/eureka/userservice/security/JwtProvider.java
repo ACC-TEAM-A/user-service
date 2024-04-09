@@ -1,7 +1,7 @@
 package com.eureka.userservice.security;
 
 import com.eureka.userservice.domain.Authority;
-import com.eureka.userservice.service.Member.JpaUserDetailsService;
+import com.eureka.userservice.service.User.JpaUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
@@ -65,6 +66,21 @@ public class JwtProvider {
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
     }
 
+    public Optional<Long> getUserIdToToken(String token) {
+        try {
+            String userId = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+
+            return Optional.of(Long.parseLong(userId));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
     // Authorization Header를 통해 인증을 한다.
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader("Authorization");
@@ -86,4 +102,28 @@ public class JwtProvider {
             return false;
         }
     }
+
+    //JWT 토큰의 유효시간을 얻어오 메서드
+    public Long getExpiration(String accessToken) {
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody()
+                .getExpiration();
+
+        long now = new Date().getTime();
+        return expiration.getTime() - now;
+    }
+
+    public String resolveAccessToken(String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        return token;
+    }
+
+    public String resolveRefreshToken(String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        return token;
+    }
+
 }

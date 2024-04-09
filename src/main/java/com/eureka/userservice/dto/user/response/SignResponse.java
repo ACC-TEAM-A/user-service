@@ -1,7 +1,7 @@
-package com.eureka.userservice.dto.member.response;
+package com.eureka.userservice.dto.user.response;
 
 import com.eureka.userservice.domain.Authority;
-import com.eureka.userservice.domain.Member;
+import com.eureka.userservice.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public class SignResponse {
 
     private String token;
 
-    public SignResponse(Member member) {
+    public SignResponse(User member) {
         this.id = member.getId();
         this.account = member.getAccount();
         this.nickname = member.getNickname();

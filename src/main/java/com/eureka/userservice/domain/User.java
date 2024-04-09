@@ -1,6 +1,5 @@
 package com.eureka.userservice.domain;
 
-import com.eureka.userservice.domain.Authority;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +15,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Member {
+public class User {
 
     @jakarta.persistence.Id
     @Id

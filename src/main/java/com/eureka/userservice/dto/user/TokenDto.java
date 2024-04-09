@@ -1,4 +1,4 @@
-package com.eureka.userservice.dto.member;
+package com.eureka.userservice.dto.user;
 
 import lombok.*;
 

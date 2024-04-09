@@ -1,4 +1,4 @@
-package com.eureka.userservice.dto.member.request;
+package com.eureka.userservice.dto.user.request;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,5 @@
 package com.eureka.userservice.domain;
 
-import com.eureka.userservice.domain.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,7 +23,6 @@ public class Authority {
 
     private String name;
 
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -32,9 +30,9 @@ public class Authority {
     @JoinColumn(name = "member")
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    private Member member;
+    private User member;
 
-    public void setMember(Member member) {
+    public void setMember(User member) {
         this.member = member;
     }
 

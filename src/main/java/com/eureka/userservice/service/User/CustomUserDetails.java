@@ -1,6 +1,6 @@
-package com.eureka.userservice.service.Member;
+package com.eureka.userservice.service.User;
 
-import com.eureka.userservice.domain.Member;
+import com.eureka.userservice.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final Member member;
+    private final User member;
 
-    public CustomUserDetails(Member member) {
+    public CustomUserDetails(User member) {
         this.member = member;
     }
 
-    public final Member getMember() {
+    public final User getMember() {
         return member;
     }
 

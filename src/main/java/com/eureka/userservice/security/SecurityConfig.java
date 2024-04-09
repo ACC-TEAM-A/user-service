@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,11 +22,15 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
 import java.util.List;
+
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers;
 
 @Configuration
 @RequiredArgsConstructor
@@ -53,18 +58,25 @@ public class SecurityConfig {
                 })
                 // 세션 관리 설정 제거 및 세션 생성 정책 설정
                 // 세션 관리 설정 제거 및 세션 생성 정책 설정
+
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 // 조건별로 요청 허용/제한 설정
-                .authorizeRequests(authorize -> authorize
+
+                .authorizeRequests(
+                        authorize -> authorize
+
                         // 회원가입과 로그인은 모두 승인
-                        .requestMatchers("/register", "/login").permitAll()
-                        // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        // /user로 시작하는 요청은 USER 권한이 있는 유저에게만 허용
-                        .requestMatchers("/user/**").hasRole("USER")
-                        .anyRequest().denyAll()
+                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/member/register", "/member/login")).permitAll()
+                                // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                // /user로 시작하는 요청은 USER 권한이 있는 유저에게만 허용
+                                .requestMatchers("/user/**").hasRole("USER")
+                                .anyRequest().authenticated()
+                                // 나머지 요청은 모두 거부
+                                .anyRequest().denyAll()
                 )
                 // JWT 인증 필터 적용
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
@@ -91,5 +103,14 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedMethods(List.of("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return (CorsConfigurationSource) source;
     }
 }

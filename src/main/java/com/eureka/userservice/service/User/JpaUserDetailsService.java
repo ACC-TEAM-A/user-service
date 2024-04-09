@@ -1,7 +1,7 @@
-package com.eureka.userservice.service.Member;
+package com.eureka.userservice.service.User;
 
-import com.eureka.userservice.domain.Member;
-import com.eureka.userservice.repository.MemberRepository;
+import com.eureka.userservice.domain.User;
+import com.eureka.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JpaUserDetailsService implements UserDetailsService {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository memberRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Member member = memberRepository.findByAccount(username).orElseThrow(
+        User member = memberRepository.findByAccount(username).orElseThrow(
                 () -> new UsernameNotFoundException("Invalid authentication!")
         );
 
